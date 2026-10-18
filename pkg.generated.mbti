@@ -1,0 +1,75 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "local/moonmount"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse(String, namespace_id~ : String) -> Snapshot raise MountError
+
+// Errors
+pub suberror MountError {
+  Invalid(line~ : Int, reason~ : String)
+  Limit(reason~ : String)
+  Topology(reason~ : String)
+  InvalidPath(String)
+  NamespaceMismatch
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub struct Change {
+  kind : ChangeKind
+  before : Mount?
+  after : Mount?
+} derive(ToJson, @debug.Debug)
+
+pub(all) enum ChangeKind {
+  Added
+  Removed
+  Changed
+  Replaced
+} derive(Eq, ToJson, @debug.Debug)
+
+pub struct Mount {
+  id : Int
+  parent_id : Int
+  major : Int
+  minor : Int
+  root : String
+  point : String
+  options : String
+  optional_fields : String
+  shared : Int?
+  master : Int?
+  propagate_from : Int?
+  unbindable : Bool
+  fs_type : String
+  source : String
+  super_options : String
+} derive(Eq, ToJson, @debug.Debug)
+pub fn Mount::read_only(Self) -> Bool
+pub fn Mount::super_read_only(Self) -> Bool
+
+pub struct Resolution {
+  mount : Mount
+  filesystem_path : String
+  chain : Array[Int]
+} derive(ToJson, @debug.Debug)
+
+pub struct Snapshot {
+  // private fields
+} derive(@debug.Debug)
+pub fn Snapshot::ancestors(Self, Int) -> Array[Mount]
+pub fn Snapshot::children(Self, Int) -> Array[Mount]
+pub fn Snapshot::diff(Self, Self) -> Array[Change] raise MountError
+pub fn Snapshot::get(Self, Int) -> Mount?
+pub fn Snapshot::mounts(Self) -> Array[Mount]
+pub fn Snapshot::namespace_id(Self) -> String
+pub fn Snapshot::peers(Self, Int) -> Array[Mount]
+pub fn Snapshot::resolve(Self, String) -> Resolution raise MountError
+pub fn Snapshot::slaves(Self, Int) -> Array[Mount]
+
+// Type aliases
+
+// Traits

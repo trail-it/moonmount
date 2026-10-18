@@ -1,0 +1,5 @@
+import {
+  "local/moonmount" @mount,
+}
+
+pkgtype(kind: "executable")

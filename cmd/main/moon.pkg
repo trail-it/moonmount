@@ -1,0 +1,7 @@
+supported_targets = "js"
+
+import {
+  "local/moonmount" @mount,
+}
+
+pkgtype(kind: "executable")

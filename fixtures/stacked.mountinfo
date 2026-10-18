@@ -1,0 +1,5 @@
+1 99 8:1 / / rw shared:7 - ext4 /dev/demo rw
+2 1 8:1 /old /work rw - ext4 /dev/demo rw
+3 2 0:4 / /work/hidden rw - tmpfs tmpfs rw
+4 2 8:2 /project /work ro master:7 - ext4 /dev/new rw
+5 4 0:5 / /work/cache rw shared:8 master:7 propagate_from:7 future:abc - tmpfs tmpfs rw
