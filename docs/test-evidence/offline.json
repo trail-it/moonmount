@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-18",
+  "platform": "Windows",
+  "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\nmoonc v0.10.15+943464bfa (2026-10-12)\nmoonrun 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+  "checks": {
+    "format": "Finished. moon: ran 11 tasks, now up to date",
+    "wasm-gc": {
+      "check": "Finished. moon: ran 4 tasks, now up to date",
+      "test": "Total tests: 22, passed: 22, failed: 0.",
+      "build": "Finished. moon: ran 3 tasks, now up to date"
+    },
+    "js": {
+      "check": "Finished. moon: ran 4 tasks, now up to date",
+      "test": "Total tests: 22, passed: 22, failed: 0.",
+      "build": "Finished. moon: no work to do"
+    }
+  },
+  "cli_error_cases": 7,
+  "cross_backend_demo": "identical JSON",
+  "result": "passed"
+}

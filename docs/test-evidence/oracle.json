@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-18",
+  "oracle": "independent Python pathname-component traversal",
+  "synthetic_mounts": 37,
+  "paths_compared": 19,
+  "distinct_visible_mounts": 5,
+  "hidden_subtree_negative_control": "passed",
+  "result": "passed"
+}

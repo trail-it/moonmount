@@ -9,3 +9,4 @@
 /.github/
 /output/
 __pycache__/
+/docs/test-evidence/package-consumption.json
