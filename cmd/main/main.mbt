@@ -44,14 +44,14 @@ fn report(s : @mount.Snapshot, path : String?) -> Unit raise {
     None =>
       {
         "schema": 1,
-        "namespace_id": s.namespace_id().to_json(),
-        "mounts": s.mounts().to_json(),
+        "namespace_id": Json(s.namespace_id()),
+        "mounts": Json(s.mounts()),
       }
     Some(path) =>
       {
         "schema": 1,
-        "namespace_id": s.namespace_id().to_json(),
-        "resolution": s.resolve(path).to_json(),
+        "namespace_id": Json(s.namespace_id()),
+        "resolution": Json(s.resolve(path)),
       }
   }
   println(result.stringify())
@@ -67,7 +67,7 @@ fn run(args : Array[String]) -> Unit raise {
     ["diff", old, newer, token] => {
       let a = @mount.parse(read(old), namespace_id=token)
       let b = @mount.parse(read(newer), namespace_id=token)
-      println(a.diff(b).to_json().stringify())
+      println(Json(a.diff(b)).stringify())
     }
     ["live"] => report(live(), None)
     ["live", path] => report(live(), Some(path))
@@ -81,6 +81,13 @@ fn run(args : Array[String]) -> Unit raise {
 ///|
 fn main {
   run(Array::from_iter(arguments().iter())) catch {
+    @mount.MountError::Invalid(line~, reason~) =>
+      failure("mountinfo line \{line}: \{reason}")
+    @mount.MountError::Limit(reason~) => failure("input limit: \{reason}")
+    @mount.MountError::Topology(reason~) => failure("topology: \{reason}")
+    @mount.MountError::InvalidPath(path) =>
+      failure("noncanonical absolute path: \{path}")
+    @mount.MountError::NamespaceMismatch => failure("mount namespace mismatch")
     error => failure(error.to_string())
   }
 }

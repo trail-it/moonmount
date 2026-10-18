@@ -43,7 +43,7 @@ def main():
     records = [(1, 99, "/", "/")]
     points = ["/", "/a", "/a/b", "/a/b/c", "/a/c", "/x", "/x/y", "/z"]
     for identity in range(2, 38):
-        point = rng.choice(points)
+        point = "/" if identity in (2, 18) else rng.choice(points[1:])
         parent, _, _ = walk(records, point)
         records.append((identity, parent, f"/sub{identity}", point))
     text = "".join(f"{i} {p} 0:{i} {root} {point} rw - tmpfs synthetic rw\n" for i, p, root, point in records)
@@ -51,18 +51,21 @@ def main():
     work.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="oracle-", dir=work) as tmp:
         fixture = Path(tmp) / "generated.mountinfo"
-        fixture.write_text(text, encoding="utf-8")
+        fixture.write_text(text, encoding="utf-8", newline="\n")
         paths = sorted(set(points + [p.rstrip("/") + "/file" for p in points] + ["/aa", "/unknown", "/a/bb"]))
+        visible_ids = set()
         for path in paths:
             actual = call("resolve", fixture, "synthetic-oracle", path)["resolution"]
             expected_id, expected_path, expected_chain = walk(records, path)
+            visible_ids.add(expected_id)
             assert (actual["mount"]["id"], actual["filesystem_path"], actual["chain"]) == (expected_id, expected_path, expected_chain), path
+        assert len(visible_ids) >= 4
         # Fixed, independently hand-derived overmount fixture is the negative control
         # against a global longest-prefix resolver.
         actual = call("resolve", "fixtures/stacked.mountinfo", "synthetic", "/work/hidden/file")["resolution"]
         assert actual["mount"]["id"] == 4 and actual["filesystem_path"] == "/project/hidden/file"
         assert actual["mount"]["id"] != 3
-    result = {"date": "2026-10-18", "oracle": "independent Python pathname-component traversal", "synthetic_mounts": len(records), "paths_compared": len(paths), "hidden_subtree_negative_control": "passed", "result": "passed"}
+    result = {"date": "2026-10-18", "oracle": "independent Python pathname-component traversal", "synthetic_mounts": len(records), "paths_compared": len(paths), "distinct_visible_mounts": len(visible_ids), "hidden_subtree_negative_control": "passed", "result": "passed"}
     (ROOT / "docs/test-evidence").mkdir(parents=True, exist_ok=True)
     (ROOT / "docs/test-evidence/oracle.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result))

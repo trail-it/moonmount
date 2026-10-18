@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import tempfile
@@ -48,7 +49,8 @@ def main():
     # A real unreadable input, not a synthetic replacement for live success.
     error = subprocess.run(["node", str(CLI), "inspect", "/proc/no-such-mount-record", token], capture_output=True)
     assert error.returncode == 1 and not error.stdout
-    result = {"date": "2026-10-18", "platform": platform.system(), "backend": "js / Node", "toolchain": run(["moon", "version", "--all"]).strip(), "node": run(["node", "--version"]).strip(), "findmnt": run(["findmnt", "--version"]).strip(), "records_compared": len(parsed), "fields_per_record": 7, "real_paths_compared": len(paths), "read_failure": "passed", "live_namespace_identity": "passed", "host_mount_changes": "none", "result": "passed"}
+    versions = "\n".join(re.sub(r"\)\s+.*$", ")", line) for line in run(["moon", "version", "--all"]).strip().splitlines())
+    result = {"date": "2026-10-18", "platform": platform.system(), "backend": "js / Node", "toolchain": versions, "node": run(["node", "--version"]).strip(), "findmnt": run(["findmnt", "--version"]).strip(), "records_compared": len(parsed), "fields_per_record": 7, "real_paths_compared": len(paths), "read_failure": "passed", "live_namespace_identity": "passed", "host_mount_changes": "none", "result": "passed"}
     dest = ROOT / "docs/test-evidence/linux.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(result, indent=2) + "\n")

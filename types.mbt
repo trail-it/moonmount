@@ -1,7 +1,7 @@
 ///|
 /// Parsing and topology failures are explicit; malformed input is never skipped.
 pub suberror MountError {
-  Invalid(line~ : Int, reason~ : String)
+  Invalid(line~ : Int32, reason~ : String)
   Limit(reason~ : String)
   Topology(reason~ : String)
   InvalidPath(String)
@@ -11,17 +11,17 @@ pub suberror MountError {
 ///|
 /// Immutable mount record. Options retain their comma separated spelling.
 pub struct Mount {
-  id : Int
-  parent_id : Int
-  major : Int
-  minor : Int
+  id : Int32
+  parent_id : Int32
+  major : Int32
+  minor : Int32
   root : String
   point : String
   options : String
   optional_fields : String
-  shared : Int?
-  master : Int?
-  propagate_from : Int?
+  shared : Int32?
+  master : Int32?
+  propagate_from : Int32?
   unbindable : Bool
   fs_type : String
   source : String
@@ -33,15 +33,15 @@ pub struct Mount {
 pub struct Snapshot {
   priv token : String
   priv entries : Array[Mount]
-  priv index : Map[Int, Mount]
-  priv child_index : Map[Int, Array[Mount]]
+  priv index : Map[Int32, Mount]
+  priv child_index : Map[Int32, Array[Mount]]
 } derive(Debug)
 
 ///|
 pub struct Resolution {
   mount : Mount
-  filesystem_path : String
-  chain : Array[Int]
+  filesystem_path : String?
+  chain : Array[Int32]
 } derive(Debug, ToJson)
 
 ///|
@@ -69,3 +69,42 @@ pub fn Mount::read_only(self : Mount) -> Bool {
 pub fn Mount::super_read_only(self : Mount) -> Bool {
   self.super_options.split(",").any(fn(v) { v == "ro" })
 }
+
+///|
+pub extend MountError with @debug.Debug::{to_repr}
+
+///|
+pub extend MountError with Eq::{equal, not_equal}
+
+///|
+pub extend Mount with @debug.Debug::{to_repr}
+
+///|
+pub extend Mount with Eq::{equal, not_equal}
+
+///|
+pub extend Mount with ToJson::{to_json}
+
+///|
+pub extend Snapshot with @debug.Debug::{to_repr}
+
+///|
+pub extend Resolution with @debug.Debug::{to_repr}
+
+///|
+pub extend Resolution with ToJson::{to_json}
+
+///|
+pub extend ChangeKind with @debug.Debug::{to_repr}
+
+///|
+pub extend ChangeKind with Eq::{equal, not_equal}
+
+///|
+pub extend ChangeKind with ToJson::{to_json}
+
+///|
+pub extend Change with @debug.Debug::{to_repr}
+
+///|
+pub extend Change with ToJson::{to_json}

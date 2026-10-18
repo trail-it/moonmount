@@ -13,8 +13,8 @@ fn main raise {
   )
   let report : Json = {
     "input": "synthetic-demo",
-    "resolution": before.resolve("/work/hidden/file").to_json(),
-    "changes": before.diff(after).to_json(),
+    "resolution": Json(before.resolve("/work/hidden/file")),
+    "changes": Json(before.diff(after)),
   }
   println(report.stringify())
 }

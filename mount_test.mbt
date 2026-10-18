@@ -37,19 +37,19 @@ test "overmount hides old nested mount, while new children remain visible" {
   let s = @moonmount.parse(stacked(), namespace_id="synthetic")
   let hidden = s.resolve("/work/hidden/file")
   assert_eq(hidden.mount.id, 4)
-  assert_eq(hidden.filesystem_path, "/project/hidden/file")
+  assert_eq(hidden.filesystem_path, Some("/project/hidden/file"))
   assert_eq(hidden.chain, [1, 2, 4])
   assert_eq(s.resolve("/work/cache/key").mount.id, 5)
-  assert_eq(s.resolve("/work/cache/key").filesystem_path, "/key")
+  assert_eq(s.resolve("/work/cache/key").filesystem_path, Some("/key"))
 }
 
 ///|
 test "component prefix, exact bind root and root join" {
   let s = @moonmount.parse(stacked(), namespace_id="synthetic")
-  assert_eq(s.resolve("/work").filesystem_path, "/project")
+  assert_eq(s.resolve("/work").filesystem_path, Some("/project"))
   assert_eq(s.resolve("/workspace/a").mount.id, 1)
-  assert_eq(s.resolve("/").filesystem_path, "/")
-  assert_eq(s.resolve("/other").filesystem_path, "/other")
+  assert_eq(s.resolve("/").filesystem_path, Some("/"))
+  assert_eq(s.resolve("/other").filesystem_path, Some("/other"))
 }
 
 ///|
@@ -60,7 +60,7 @@ test "root stacked mount hides old root children" {
   let r = s.resolve("/old/a")
   assert_eq(r.mount.id, 3)
   assert_eq(r.chain, [1, 3])
-  assert_eq(r.filesystem_path, "/sub/old/a")
+  assert_eq(r.filesystem_path, Some("/sub/old/a"))
 }
 
 ///|
@@ -84,7 +84,10 @@ test "all four kernel escapes and Unicode paths" {
   let m = s.get(2).unwrap()
   assert_eq(m.point, "/目录 A\tB\nC\\D")
   assert_eq(m.source, "/dev/a b")
-  assert_eq(s.resolve(m.point + "/题目").filesystem_path, "/文档/题目")
+  assert_eq(
+    s.resolve(m.point + "/题目").filesystem_path,
+    Some("/文档/题目"),
+  )
 }
 
 ///|
@@ -103,7 +106,7 @@ test "self-parent namespace root" {
     namespace_id="synthetic",
   )
   assert_eq(s.ancestors(1).length(), 1)
-  assert_eq(s.resolve("/a").filesystem_path, "/sub/a")
+  assert_eq(s.resolve("/a").filesystem_path, Some("/sub/a"))
   assert_true(s.get(1).unwrap().super_read_only())
 }
 
@@ -337,6 +340,40 @@ test "namespace changes reject object comparison" {
     } catch {
       NamespaceMismatch => true
       _ => false
+    },
+  )
+}
+
+///|
+test "namespace pseudo-filesystem root is preserved as an opaque identifier" {
+  let s = @moonmount.parse(
+    base() + "2 1 0:4 mnt:[12345] /ns rw - nsfs nsfs rw\n",
+    namespace_id="synthetic",
+  )
+  let r = s.resolve("/ns")
+  assert_eq(r.mount.root, "mnt:[12345]")
+  assert_eq(r.mount.id, 2)
+  assert_eq(r.filesystem_path, None)
+}
+
+///|
+test "record count accepts its documented bound and rejects the next record" {
+  let text = StringBuilder()
+  text.write_string("1 1 0:1 / / rw - tmpfs x rw\n")
+  for id in 2..<=16384 {
+    text.write_string("\{id} 1 0:1 / /m\{id} rw - tmpfs x rw\n")
+  }
+  assert_eq(
+    @moonmount.parse(text.to_string(), namespace_id="s").mounts().length(),
+    16384,
+  )
+  text.write_string("16385 1 0:1 / /last rw - tmpfs x rw\n")
+  assert_true(
+    try {
+      ignore(@moonmount.parse(text.to_string(), namespace_id="s"))
+      false
+    } catch {
+      _ => true
     },
   )
 }

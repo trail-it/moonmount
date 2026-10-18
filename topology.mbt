@@ -15,12 +15,12 @@ pub fn Snapshot::mounts(self : Snapshot) -> Array[Mount] {
 }
 
 ///|
-pub fn Snapshot::get(self : Snapshot, id : Int) -> Mount? {
+pub fn Snapshot::get(self : Snapshot, id : Int32) -> Mount? {
   self.index.get(id)
 }
 
 ///|
-pub fn Snapshot::children(self : Snapshot, id : Int) -> Array[Mount] {
+pub fn Snapshot::children(self : Snapshot, id : Int32) -> Array[Mount] {
   match self.child_index.get(id) {
     Some(v) => v.copy()
     None => []
@@ -29,7 +29,7 @@ pub fn Snapshot::children(self : Snapshot, id : Int) -> Array[Mount] {
 
 ///|
 /// Self followed by visible recorded parents. A missing outer parent stops traversal.
-pub fn Snapshot::ancestors(self : Snapshot, id : Int) -> Array[Mount] {
+pub fn Snapshot::ancestors(self : Snapshot, id : Int32) -> Array[Mount] {
   let out : Array[Mount] = []
   let mut next = self.get(id)
   while next is Some(m) {
@@ -43,13 +43,13 @@ pub fn Snapshot::ancestors(self : Snapshot, id : Int) -> Array[Mount] {
 }
 
 ///|
-pub fn Snapshot::peers(self : Snapshot, group : Int) -> Array[Mount] {
+pub fn Snapshot::peers(self : Snapshot, group : Int32) -> Array[Mount] {
   self.entries.filter(fn(m) { m.shared == Some(group) })
 }
 
 ///|
 /// Direct slave mounts whose master peer group is `group`.
-pub fn Snapshot::slaves(self : Snapshot, group : Int) -> Array[Mount] {
+pub fn Snapshot::slaves(self : Snapshot, group : Int32) -> Array[Mount] {
   self.entries.filter(fn(m) { m.master == Some(group) })
 }
 
@@ -110,12 +110,14 @@ pub fn Snapshot::resolve(
   } else {
     path.strip_prefix(current.point + "/").unwrap().to_owned()
   }
-  let filesystem_path = if suffix == "" {
-    current.root
+  let filesystem_path = if !valid_path(current.root) {
+    None
+  } else if suffix == "" {
+    Some(current.root)
   } else if current.root == "/" {
-    "/" + suffix
+    Some("/" + suffix)
   } else {
-    current.root + "/" + suffix
+    Some(current.root + "/" + suffix)
   }
   { mount: current, filesystem_path, chain, }
 }

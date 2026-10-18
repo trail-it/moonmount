@@ -16,6 +16,9 @@ pub suberror MountError {
   InvalidPath(String)
   NamespaceMismatch
 } derive(Eq, @debug.Debug)
+pub fn MountError::equal(Self, Self) -> Bool
+pub fn MountError::not_equal(Self, Self) -> Bool
+pub fn MountError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
 pub struct Change {
@@ -23,6 +26,8 @@ pub struct Change {
   before : Mount?
   after : Mount?
 } derive(ToJson, @debug.Debug)
+pub fn Change::to_json(Self) -> Json
+pub fn Change::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ChangeKind {
   Added
@@ -30,6 +35,10 @@ pub(all) enum ChangeKind {
   Changed
   Replaced
 } derive(Eq, ToJson, @debug.Debug)
+pub fn ChangeKind::equal(Self, Self) -> Bool
+pub fn ChangeKind::not_equal(Self, Self) -> Bool
+pub fn ChangeKind::to_json(Self) -> Json
+pub fn ChangeKind::to_repr(Self) -> @debug.Repr
 
 pub struct Mount {
   id : Int
@@ -48,14 +57,20 @@ pub struct Mount {
   source : String
   super_options : String
 } derive(Eq, ToJson, @debug.Debug)
+pub fn Mount::equal(Self, Self) -> Bool
+pub fn Mount::not_equal(Self, Self) -> Bool
 pub fn Mount::read_only(Self) -> Bool
 pub fn Mount::super_read_only(Self) -> Bool
+pub fn Mount::to_json(Self) -> Json
+pub fn Mount::to_repr(Self) -> @debug.Repr
 
 pub struct Resolution {
   mount : Mount
-  filesystem_path : String
+  filesystem_path : String?
   chain : Array[Int]
 } derive(ToJson, @debug.Debug)
+pub fn Resolution::to_json(Self) -> Json
+pub fn Resolution::to_repr(Self) -> @debug.Repr
 
 pub struct Snapshot {
   // private fields
@@ -69,6 +84,7 @@ pub fn Snapshot::namespace_id(Self) -> String
 pub fn Snapshot::peers(Self, Int) -> Array[Mount]
 pub fn Snapshot::resolve(Self, String) -> Resolution raise MountError
 pub fn Snapshot::slaves(Self, Int) -> Array[Mount]
+pub fn Snapshot::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

@@ -1,9 +1,9 @@
 ///|
 fn number(
   text : String,
-  line : Int,
-  positive? : Bool = false,
-) -> Int raise MountError {
+  line : Int32,
+  positive~ : Bool = false,
+) -> Int32 raise MountError {
   if text.is_empty() {
     raise Invalid(line~, reason="empty integer")
   }
@@ -25,7 +25,7 @@ fn number(
 }
 
 ///|
-fn unescape(text : String, line : Int) -> String raise MountError {
+fn unescape(text : String, line : Int32) -> String raise MountError {
   let chars = text.to_array()
   let out = StringBuilder()
   for i = 0; i < chars.length(); {
@@ -78,7 +78,7 @@ fn valid_path(path : String) -> Bool {
 }
 
 ///|
-fn parse_line(text : String, line : Int) -> Mount raise MountError {
+fn parse_line(text : String, line : Int32) -> Mount raise MountError {
   if text.iter().any(fn(c) { c.to_int() < 32 || c.to_int() == 127 }) {
     raise Invalid(line~, reason="raw control character")
   }
@@ -107,8 +107,8 @@ fn parse_line(text : String, line : Int) -> Mount raise MountError {
   let minor = number(dev[1], line)
   let root = unescape(fields[3], line)
   let point = unescape(fields[4], line)
-  if !valid_path(root) || !valid_path(point) {
-    raise Invalid(line~, reason="noncanonical root or mountpoint")
+  if root.is_empty() || !valid_path(point) {
+    raise Invalid(line~, reason="empty root or noncanonical mountpoint")
   }
   let tags : Map[String, Bool] = Map([])
   let optional : Array[String] = []
@@ -184,8 +184,8 @@ pub fn parse(
     raise Limit(reason="mountinfo exceeds text budget")
   }
   let entries : Array[Mount] = []
-  let index : Map[Int, Mount] = Map([])
-  let child_index : Map[Int, Array[Mount]] = Map([])
+  let index : Map[Int32, Mount] = Map([])
+  let child_index : Map[Int32, Array[Mount]] = Map([])
   let lines = text.split("\n").collect()
   for i, raw in lines {
     if i == lines.length() - 1 && raw == "" {
@@ -216,10 +216,10 @@ pub fn parse(
     raise Topology(reason="empty mount table")
   }
   // Each node is visited at most once in this graph validation.
-  let done : Map[Int, Bool] = Map([])
+  let done : Map[Int32, Bool] = Map([])
   for entry in entries {
-    let path : Array[Int] = []
-    let active : Map[Int, Bool] = Map([])
+    let path : Array[Int32] = []
+    let active : Map[Int32, Bool] = Map([])
     let mut current = Some(entry)
     while current is Some(m) {
       if done.contains(m.id) {
