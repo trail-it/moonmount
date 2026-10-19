@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import os
+import re
 import subprocess
 import tempfile
 
@@ -44,9 +45,15 @@ def main():
 
         def check(path, expected_id=None):
             actual = json.loads(run("node", CLI, "live", path))["resolution"]
-            expected = json.loads(run("findmnt", "--json", "--target", path, "--output", "ID,TARGET,FSROOT"))["filesystems"][0]
-            assert actual["mount"]["id"] == int(expected["id"])
-            assert actual["mount"]["point"] == expected["target"]
+            # O_PATH performs actual kernel lookup. fdinfo reports the mount ID
+            # of that opened path, even when older findmnt selects a covered row.
+            fd = os.open(path, os.O_PATH | os.O_CLOEXEC)
+            try:
+                info = Path(f"/proc/self/fdinfo/{fd}").read_text()
+                kernel_id = int(re.search(r"^mnt_id:\s*(\d+)$", info, re.MULTILINE).group(1))
+            finally:
+                os.close(fd)
+            assert actual["mount"]["id"] == kernel_id
             if expected_id is not None:
                 assert actual["mount"]["id"] == expected_id
             return actual
@@ -54,7 +61,6 @@ def main():
         try:
             bind(old, target)
             bind(old / "hidden", target / "hidden")
-            old_records = inspect()
             hidden_id = check(target / "hidden")["mount"]["id"]
             bind(new, target)
             assert (target / "marker").read_text() == "new"
@@ -87,7 +93,7 @@ def main():
         finally:
             for destination in reversed(mounted):
                 run("umount", destination)
-    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "platform": "Linux", "scenarios": scenarios, "scenario_count": len(scenarios), "isolation": "disposable mount namespace; propagation private; all temporary mounts unmounted", "result": "passed"}
+    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "platform": "Linux", "node": run("node", "--version").strip(), "oracle": "kernel O_PATH lookup + /proc/self/fdinfo mnt_id", "scenarios": scenarios, "scenario_count": len(scenarios), "isolation": "disposable mount namespace; propagation private; all temporary mounts unmounted", "result": "passed"}
     dest = ROOT / "docs/test-evidence/mount-namespace.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
