@@ -1,12 +1,12 @@
 """Run locally on Linux. Raw host data stays under ignored release-local/."""
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 import os
 import platform
 import re
 import subprocess
 import sys
-import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "_build/js/debug/build/cmd/main/main.js"
@@ -20,10 +20,10 @@ def main():
     assert sys.platform == "linux", "Linux required"
     raw = ROOT / "release-local/linux"
     raw.mkdir(parents=True, exist_ok=True)
-    text = Path("/proc/self/mountinfo").read_text(encoding="utf-8")
+    text = Path("/proc/self/mountinfo").read_bytes().decode("utf-8")
     token = os.readlink("/proc/self/ns/mnt")
     source = raw / "mountinfo.txt"
-    source.write_text(text, encoding="utf-8")
+    source.write_text(text, encoding="utf-8", newline="\n")
     parsed = json.loads(run(["node", str(CLI), "inspect", str(source), token]))["mounts"]
     columns = "ID,PARENT,MAJ:MIN,FSROOT,TARGET,FSTYPE,VFS-OPTIONS"
     expected = json.loads(run(["findmnt", "--tab-file", str(source), "--kernel", "--json", "--list", "--output", columns]))["filesystems"]
@@ -50,7 +50,7 @@ def main():
     error = subprocess.run(["node", str(CLI), "inspect", "/proc/no-such-mount-record", token], capture_output=True)
     assert error.returncode == 1 and not error.stdout
     versions = "\n".join(re.sub(r"\)\s+.*$", ")", line) for line in run(["moon", "version", "--all"]).strip().splitlines())
-    result = {"date": "2026-10-18", "platform": platform.system(), "backend": "js / Node", "toolchain": versions, "node": run(["node", "--version"]).strip(), "findmnt": run(["findmnt", "--version"]).strip(), "records_compared": len(parsed), "fields_per_record": 7, "real_paths_compared": len(paths), "read_failure": "passed", "live_namespace_identity": "passed", "host_mount_changes": "none", "result": "passed"}
+    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "platform": platform.system(), "backend": "js / Node", "toolchain": versions, "node": run(["node", "--version"]).strip(), "findmnt": run(["findmnt", "--version"]).strip(), "records_compared": len(parsed), "fields_per_record": 7, "real_paths_compared": len(paths), "read_failure": "passed", "live_namespace_identity": "passed", "host_mount_changes": "none", "result": "passed"}
     dest = ROOT / "docs/test-evidence/linux.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(result, indent=2) + "\n")

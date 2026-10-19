@@ -28,7 +28,7 @@ pub fn Snapshot::children(self : Snapshot, id : Int32) -> Array[Mount] {
 }
 
 ///|
-/// Self followed by visible recorded parents. A missing outer parent stops traversal.
+/// Self followed by recorded parents, including covered mounts. A missing outer parent stops traversal.
 pub fn Snapshot::ancestors(self : Snapshot, id : Int32) -> Array[Mount] {
   let out : Array[Mount] = []
   let mut next = self.get(id)

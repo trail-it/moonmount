@@ -25,7 +25,11 @@ fn number(
 }
 
 ///|
-fn unescape(text : String, line : Int32) -> String raise MountError {
+fn unescape(
+  text : String,
+  line : Int32,
+  source_field~ : Bool = false,
+) -> String raise MountError {
   let chars = text.to_array()
   let out = StringBuilder()
   for i = 0; i < chars.length(); {
@@ -42,12 +46,13 @@ fn unescape(text : String, line : Int32) -> String raise MountError {
         ('0', '1', '1') => '\t'
         ('0', '1', '2') => '\n'
         ('1', '3', '4') => '\\'
+        ('0', '4', '3') if source_field => '#'
         _ => raise Invalid(line~, reason="unsupported escape")
       }
       out.write_char(decoded)
       continue i + 4
     } else {
-      if c == '\u0000' || c == '\t' || c == '\r' {
+      if c == '\u0000' || c == '\t' {
         raise Invalid(line~, reason="unescaped control character")
       }
       out.write_char(c)
@@ -79,8 +84,10 @@ fn valid_path(path : String) -> Bool {
 
 ///|
 fn parse_line(text : String, line : Int32) -> Mount raise MountError {
-  if text.iter().any(fn(c) { c.to_int() < 32 || c.to_int() == 127 }) {
-    raise Invalid(line~, reason="raw control character")
+  // Linux only quotes space, tab, LF and backslash in pathname fields.
+  // CR and other legal filename bytes must survive the text parser unchanged.
+  if text.contains_char('\u0000') || text.contains_char('\t') {
+    raise Invalid(line~, reason="raw NUL or tab")
   }
   let fields = text.split(" ").map(fn(s) { s.to_owned() }).collect()
   if fields.any(fn(s) { s == "" }) || fields.length() < 10 {
@@ -164,8 +171,8 @@ fn parse_line(text : String, line : Int32) -> Mount raise MountError {
     master,
     propagate_from,
     unbindable,
-    fs_type: unescape(fields[sep + 1], line),
-    source: unescape(fields[sep + 2], line),
+    fs_type: unescape(fields[sep + 1], line, source_field=true),
+    source: unescape(fields[sep + 2], line, source_field=true),
     super_options: fields[sep + 3],
   }
 }

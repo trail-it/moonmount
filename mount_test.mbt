@@ -226,7 +226,6 @@ test "invalid layout, raw control bytes and escape errors" {
       "1 1 0:1 / /a\\04 rw - tmpfs x rw",
       "1 1 0:1 / /a\\041 rw - tmpfs x rw",
       "1 1 0:1 / / rw\t - tmpfs x rw",
-      "1 1 0:1 / / rw - tmpfs x rw\r\n",
     ] {
     assert_true(
       try {
@@ -237,6 +236,34 @@ test "invalid layout, raw control bytes and escape errors" {
       },
     )
   }
+}
+
+///|
+test "kernel leaves carriage return and other non-delimiter controls unescaped" {
+  let point = "/raw\r\u0001\u007f"
+  let text = base() +
+    "2 1 8:1 /sub\r " +
+    point +
+    " rw - ext4 /dev/control\r rw\n"
+  let s = @moonmount.parse(text, namespace_id="synthetic")
+  let mount = s.get(2).unwrap()
+  assert_eq(mount.point, point)
+  assert_eq(mount.source, "/dev/control\r")
+  assert_eq(s.resolve(point + "/file").filesystem_path, Some("/sub\r/file"))
+}
+
+///|
+test "kernel mangle additionally quotes hash in source and filesystem type" {
+  let text = base() +
+    "2 1 0:2 /hash#root /hash#point rw - fuse.name\\043part /dev/a\\043b rw\n"
+  let s = @moonmount.parse(text, namespace_id="synthetic")
+  let mount = s.get(2).unwrap()
+  assert_eq(mount.fs_type, "fuse.name#part")
+  assert_eq(mount.source, "/dev/a#b")
+  assert_eq(
+    s.resolve("/hash#point/file").filesystem_path,
+    Some("/hash#root/file"),
+  )
 }
 
 ///|

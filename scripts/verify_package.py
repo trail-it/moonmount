@@ -1,7 +1,9 @@
 """Consume the actual packaged archive; source checkout is not a workspace member."""
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 import subprocess
+import sys
 import tempfile
 import zipfile
 
@@ -16,6 +18,8 @@ def run(args, cwd):
 
 
 def main():
+    (ROOT / "release-local").mkdir(exist_ok=True)
+    (ROOT / "docs/test-evidence").mkdir(parents=True, exist_ok=True)
     packaging = run(["moon", "package"], ROOT)
     archive = ROOT / "_build/publish/local-moonmount-0.1.0.zip"
     with zipfile.ZipFile(archive) as z:
@@ -32,6 +36,11 @@ def main():
             temp = Path(temp)
             library = temp / "library"
             z.extractall(library)
+            # Run the README verification commands before creating a workspace:
+            # no ignored source-tree directories or build cache may be required.
+            fresh = json.loads(run([sys.executable, "scripts/verify.py"], library))
+            oracle = json.loads(run([sys.executable, "scripts/verify_oracle.py"], library))
+            assert fresh["result"] == oracle["result"] == "passed"
             consumer = temp / "consumer"
             consumer.mkdir()
             (temp / "moon.work").write_text('members = ["library", "consumer"]\n', encoding="utf-8")
@@ -54,7 +63,7 @@ test "archive public API, hidden subtree and opaque root" {
             run(["moon", "build", "--target", "js", "--deny-warn"], library)
             cli = json.loads(run(["moon", "run", "cmd/main", "--target", "js", "--", "resolve", str(library / "fixtures/stacked.mountinfo"), "synthetic", "/work/hidden/file"], library))
             assert cli["resolution"]["mount"]["id"] == 4
-    result = {"date": "2026-10-18", "archive": archive.name, "file_count": len(entries), "archive_bytes": archive.stat().st_size, "consumers": consumers, "extracted_cli": "passed", "distribution_exclusions": "passed", "packaging_output": packaging.replace(str(ROOT), "<project>"), "result": "passed"}
+    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "archive": archive.name, "file_count": len(entries), "archive_bytes": archive.stat().st_size, "fresh_archive_readme_checks": fresh["result"], "fresh_archive_oracle": oracle["result"], "consumers": consumers, "extracted_cli": "passed", "distribution_exclusions": "passed", "packaging_output": packaging.replace(str(ROOT), "<project>"), "result": "passed"}
     (ROOT / "docs/test-evidence/package-consumption.json").write_text(json.dumps(result, indent=2) + "\n")
     (ROOT / "release-local/package-files.txt").write_text("\n".join(entries) + "\n")
     print(json.dumps(result, indent=2))

@@ -1,5 +1,6 @@
 """Verify all declared offline backends and CLI failure behavior."""
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 import platform
 import re
@@ -18,9 +19,10 @@ def run(args):
 
 
 def main():
+    (ROOT / "release-local").mkdir(exist_ok=True)
     versions = run(["moon", "version", "--all"])
     versions = "\n".join(re.sub(r"\)\s+.*$", ")", line) for line in versions.splitlines())
-    evidence = {"date": "2026-10-18", "platform": platform.system(), "toolchain": versions, "checks": {}}
+    evidence = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "platform": platform.system(), "toolchain": versions, "node": run(["node", "--version"]), "checks": {}}
     evidence["checks"]["format"] = run(["moon", "fmt", "--check"])
     demos = []
     for target in ["wasm-gc", "js"]:

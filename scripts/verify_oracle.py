@@ -1,5 +1,6 @@
 """Independent component-by-component mount traversal, synthetic input only."""
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 import random
 import subprocess
@@ -65,7 +66,7 @@ def main():
         actual = call("resolve", "fixtures/stacked.mountinfo", "synthetic", "/work/hidden/file")["resolution"]
         assert actual["mount"]["id"] == 4 and actual["filesystem_path"] == "/project/hidden/file"
         assert actual["mount"]["id"] != 3
-    result = {"date": "2026-10-18", "oracle": "independent Python pathname-component traversal", "synthetic_mounts": len(records), "paths_compared": len(paths), "distinct_visible_mounts": len(visible_ids), "hidden_subtree_negative_control": "passed", "result": "passed"}
+    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "oracle": "independent Python pathname-component traversal", "synthetic_mounts": len(records), "paths_compared": len(paths), "distinct_visible_mounts": len(visible_ids), "hidden_subtree_negative_control": "passed", "result": "passed"}
     (ROOT / "docs/test-evidence").mkdir(parents=True, exist_ok=True)
     (ROOT / "docs/test-evidence/oracle.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result))
