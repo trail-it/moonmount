@@ -30,3 +30,7 @@ MVP：完整 mountinfo 字段与四种转义；未知 optional 字段保留；�
 规则：2026-10-18 读取官方 Hackathon2026/src/App.tsx（JS 页面正文经 raw GitHub 获取）。十月报名/验收截止 10 月 31 日、最多提交 3 次、每队最多 3 人；要求 MoonBit 主体、公开持续记录和可运行交付。次数主体与修改计算不自行推断，不进行报名。
 
 本地临时模块 local/moonmount，版本 0.1.0，MIT。GitHub owner/repo、公开 Git 身份、Mooncakes namespace、参赛者资料均待定。只本地交付；真实阶段提交使用中性本地身份，不代表用户公开身份，不补造公开时间。
+
+## 2026-10-20 验收完善
+
+复核官方当前六项验收标准；修复合法 CR/控制字符和 source/type 的 # 引用，公共 API 不变。验证命令可从新解压目录运行，时间戳改为实际执行时间；新增隔离 mount namespace 的真实 overmount/remount 对照。公开发布和连续公开记录尚未执行，不以本地 Git 历史代替。

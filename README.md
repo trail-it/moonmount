@@ -6,7 +6,7 @@
 
 ## 三分钟体验
 
-使用 MoonBit 2026-10-12 兼容工具链；Node.js 用于 JS 命令行，Python 用于开发验证。Windows 若已准备本项目内的工具链，可先执行 `. ./scripts/windows-env.ps1`，只影响当前会话。完整版本见 docs/test-evidence/。
+使用 MoonBit 2026-10-12 兼容工具链（[官方安装说明](https://docs.moonbitlang.com/en/latest/tutorial/tour.html)）；Node.js 用于 JS 命令行，Python 用于开发验证。Windows 若已准备本项目内的工具链，可先执行 `. ./scripts/windows-env.ps1`，只影响当前会话。完整版本见 docs/test-evidence/。
 
 ```sh
 moon run examples/replay --target wasm-gc
@@ -26,7 +26,7 @@ moon run cmd/main --target js -- live /proc/self/mountinfo
 
 ## API
 
-在调用方 moon.pkg 导入 `"local/moonmount" @mount`；当前通过本地 moon.work 使用，正式 registry 安装留待发布。
+在调用方 moon.pkg 导入 `"local/moonmount" @mount`；当前通过本地 moon.work 使用，正式 registry 安装留待发布；可直接运行 `python scripts/verify_package.py`，它会自动创建独立 moon.work 消费工程。
 
 ```moonbit nocheck
 let snapshot = @mount.parse(text, namespace_id="same-namespace-lifetime")
@@ -37,7 +37,7 @@ let peers = snapshot.peers(7)
 
 完整可执行示例见 [API.mbt.md](API.mbt.md)，签名见 [pkg.generated.mbti](pkg.generated.mbti)。Snapshot 提供 get、mounts、children、ancestors、peers、slaves、resolve、diff。返回的数组是副本，不能修改快照内部图。
 
-解析保留 device、filesystem root、mountpoint、mount/super options、shared/master/propagate_from/unbindable 及未知 optional 字段。差分区分 Added、Removed、Changed 和可观察身份改变的 Replaced。
+解析兼容路径四种内核转义、source/fs_type 的 `\043`，保留合法原样控制字符。解析保留 device、filesystem root、mountpoint、mount/super options、shared/master/propagate_from/unbindable 及未知 optional 字段。差分区分 Added、Removed、Changed 和可观察身份改变的 Replaced。
 
 ## CLI
 
@@ -57,9 +57,11 @@ python scripts/verify_oracle.py
 python scripts/verify_package.py
 # Linux 上另外执行
 python3 scripts/verify_linux.py
+# 在支持 user namespace 的 Linux 上，执行真实挂载场景
+unshare --user --map-root-user --mount --propagation private env MOONMOUNT_DISPOSABLE_NAMESPACE=1 python3 scripts/verify_mount_namespace.py
 ```
 
-核心支持 JS/Wasm-GC，live 仅 Linux + Node。测试涵盖传播语义、四种转义、隐藏子树、bind root、环、歧义、预算和 namespace 拒绝。独立 Python oracle 逐路径组件遍历；Linux 用 findmnt 核对真实记录和路径。真实结果见 [交付记录](docs/release.md)。
+核心支持 JS/Wasm-GC，live 仅 Linux + Node。测试涵盖传播语义、四种转义、隐藏子树、bind root、环、歧义、预算和 namespace 拒绝。独立 Python oracle 逐路径组件遍历；实际包解压后还执行 README 的完整离线验证；Linux 用 findmnt 核对真实记录和路径。内核场景测试需可创建 user/mount namespace，或使用带 CAP_SYS_ADMIN 的一次性容器；它只操作测试命名空间的临时挂载。真实结果见 [交付记录](docs/release.md)。
 
 ## 范围与限制
 

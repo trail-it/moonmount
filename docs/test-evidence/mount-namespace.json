@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-10-19T16:19:18.652406+00:00",
+  "platform": "Linux",
+  "node": "v22.23.3",
+  "oracle": "kernel O_PATH lookup + /proc/self/fdinfo mnt_id",
+  "scenarios": [
+    "overmount hides recorded old child; kernel lookup agrees",
+    "bind filesystem root path agrees with source subdirectory",
+    "real escaped and unescaped control-character mountpoint",
+    "real bind remount produces Changed without false Replaced"
+  ],
+  "scenario_count": 4,
+  "isolation": "disposable mount namespace; propagation private; all temporary mounts unmounted",
+  "result": "passed"
+}

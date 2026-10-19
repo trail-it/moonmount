@@ -9,6 +9,9 @@
 5. mount options 的 ro 与 super options 的 ro 有何区别？前者只约束该挂载，不能据此声称同一文件系统其他挂载只读。
 6. shared 和 master 可同时存在吗？可以，表示共享且作为另一个组的 slave；unbindable 则不能与这两者并存。未知可选标签应保留，未来内核字段不应被默默丢弃。
 7. 差分 Replaced 证明了什么？只证明可观察身份字段变化，不证明完整生命周期。相同 mount ID 可复用，namespace token 也需正确归属。
-8. MoonBit 的贡献在哪里？解析、错误与预算、图约束、可见路径、传播查询、变化判断；JS 仅读文件和 namespace。Python oracle 逐组件遍历，findmnt 是独立系统实现。
+8. MoonBit 的贡献在哪里？解析、错误与预算、图约束、可见路径、传播查询、变化判断；JS 仅读文件和 namespace。Python oracle 逐组件遍历，findmnt 是独立解析对照；实际覆盖路径用内核 O_PATH/fdinfo mnt_id，避免旧 findmnt 选中被覆盖条目。
 
 建议修改练习：在 synthetic fixture 中给 ID 4 增加孩子，预测 resolve 结果，再运行示例。读 types.mbt → parse.mbt → topology.mbt → mount_test.mbt → scripts/verify_linux.py，检查为什么测试失败。不要把“全部测试通过”解释为任意内核/路径语义都支持。
+
+9. 内核文件名转义为何不能按“去掉所有控制字符”处理？path 字段只引用空格、Tab、LF、反斜杠，合法 CR、其他非分隔控制字符和 DEL 会原样出现；source/type 的 mangle 还会引用 #。必须按字段解码，Python 读取 mountinfo 时也不能做通用换行转换。
+10. 为什么全新解压验证有价值？开发目录自带 release-local 与构建缓存可能掩盖缺失目录。现在先从真实归档运行 README 检查，再建独立消费模块，才能验证给新用户的命令。

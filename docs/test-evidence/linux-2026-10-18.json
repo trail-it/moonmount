@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-18",
+  "platform": "Linux",
+  "backend": "js / Node",
+  "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\nmoonc v0.10.15+943464bfa (2026-10-12)\nmoonrun 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+  "node": "v22.22.1",
+  "findmnt": "findmnt\uff0c\u6765\u81ea util-linux 2.41.3",
+  "records_compared": 64,
+  "fields_per_record": 7,
+  "real_paths_compared": 6,
+  "read_failure": "passed",
+  "live_namespace_identity": "passed",
+  "host_mount_changes": "none",
+  "result": "passed"
+}

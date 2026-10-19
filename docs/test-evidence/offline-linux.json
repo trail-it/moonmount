@@ -1,0 +1,22 @@
+{
+  "checked_at_utc": "2026-10-19T16:18:21.333022+00:00",
+  "platform": "Linux",
+  "toolchain": "moon 0.1.20261016 (1af328f 2026-10-16)\nmoonc v0.10.16+b1a0e846e (2026-10-16)\nmoonrun 0.1.20261016 (1af328f 2026-10-16)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+  "node": "v22.23.3",
+  "checks": {
+    "format": "Finished. moon: ran 11 tasks, now up to date",
+    "wasm-gc": {
+      "check": "Finished. moon: ran 6 tasks, now up to date",
+      "test": "Total tests: 24, passed: 24, failed: 0.",
+      "build": "Finished. moon: ran 3 tasks, now up to date"
+    },
+    "js": {
+      "check": "Finished. moon: ran 6 tasks, now up to date",
+      "test": "Total tests: 24, passed: 24, failed: 0.",
+      "build": "Finished. moon: ran 5 tasks, now up to date"
+    }
+  },
+  "cli_error_cases": 7,
+  "cross_backend_demo": "identical JSON",
+  "result": "passed"
+}

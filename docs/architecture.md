@@ -4,7 +4,7 @@
 
 ## 解析与不变量
 
-先检查总长度、行长度和记录数，按六个固定字段和 `-` 分隔符解析；四种内核转义只解码一次。ID、设备号、传播组严格十进制及 Int32 上界。未知 optional 字段保留，已知传播字段检查重复/冲突；mount options 和 superblock options 分开。
+先检查总长度、行长度和记录数，按六个固定字段和 `-` 分隔符解析；路径字段的四种内核转义只解码一次；source/fs_type 还支持内核 mangle 的 `\043`（#）。CR、非分隔控制字符和 DEL 是合法文件名字符，按原样保留，不把 Linux 文本按 CRLF 规范化。ID、设备号、传播组严格十进制及 Int32 上界。未知 optional 字段保留，已知传播字段检查重复/冲突；mount options 和 superblock options 分开。
 
 Snapshot 构建 ID 索引和 parent → children 索引。重复 ID、非根自环、其他 parent 环以及 child point 不在 parent point 下均拒绝。父节点缺失允许，因为 chroot 可隐藏外层挂载。公开 Mount 的字段只读且只含不可变值；Snapshot 返回的数组均复制，调用方不能破坏内部图。
 
@@ -33,3 +33,9 @@ peers(group) 选择 shared 同组，slaves(group) 选择 master 指向组的直�
 核心：JS、Wasm-GC。Node CLI：离线两平台，live 只 Linux；不声明 native。CLI 打开文件后分块读取，实际累计超过 8 MiB 即失败并关闭，不能靠 procfs 的 stat.size=0 判断长度。UTF-8 解码 fatal，拒绝非法字节。库限制 8 Mi UTF-16 单元、单行 65536、16384 记录，非空 namespace token 最多 256 单元。核心不拥有 OS 资源。
 
 live 前后核对 boot ID + mount namespace 链接；仅表示采集时 namespace 标识稳定，不保证文件系统状态跨多个系统接口原子一致。没有守护进程或事件订阅。所有输出由调用方决定是否保存，库和 CLI 不执行挂载变更。
+
+## 独立内核场景验收
+
+`scripts/verify_mount_namespace.py` 只在显式声明的临时 mount namespace 内运行：先把传播设为 private，在临时目录建立 bind/overmount，再与内核 O_PATH 打开目标路径后 `/proc/self/fdinfo` 的 mnt_id 对照。覆盖旧孩子仍留在 mountinfo 的场景、bind filesystem root、空格/Tab/LF/反斜杠/#/CR/控制字符/Unicode 路径，以及真正的 bind 只读 remount → Changed。退出前逆序卸载临时挂载；产品 CLI 本身仍只读。
+
+真实覆盖场景采用内核 fdinfo oracle：测试发现当前容器的 findmnt 版本会在同路径多记录时返回覆盖前的条目，而 O_PATH 打开的新 marker 与 fdinfo ID 对应实际可见挂载。普通记录字段仍使用 findmnt 独立解析对照。fdinfo 的 mnt_id 语义见 [Linux 手册](https://man7.org/linux/man-pages/man5/proc_pid_fdinfo.5.html)。
