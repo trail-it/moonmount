@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import os
+import posixpath
 import re
 import subprocess
 import tempfile
@@ -43,6 +44,13 @@ def main():
         def inspect():
             return json.loads(run("node", CLI, "live"))["mounts"]
 
+        def source_filesystem_path(path):
+            # A real host can mount a Btrfs subvolume as /, or place /tmp on
+            # another mount. Namespace absolute paths then differ from FSROOT.
+            entry = json.loads(run("findmnt", "--json", "--target", path, "--output", "TARGET,FSROOT"))["filesystems"][0]
+            relative = posixpath.relpath(str(path), entry["target"])
+            return posixpath.normpath(posixpath.join(entry["fsroot"], relative))
+
         def check(path, expected_id=None):
             actual = json.loads(run("node", CLI, "live", path))["resolution"]
             # O_PATH performs actual kernel lookup. fdinfo reports the mount ID
@@ -70,7 +78,7 @@ def main():
             result = check(target / "hidden", top_id)
             assert result["mount"]["id"] != hidden_id
             scenarios.append("overmount hides recorded old child; kernel lookup agrees")
-            assert result["filesystem_path"] == str(new / "hidden")
+            assert result["filesystem_path"] == source_filesystem_path(new / "hidden")
             scenarios.append("bind filesystem root path agrees with source subdirectory")
             # Kernel pathname quoting differs between mountpoint and source/type.
             odd = tmp / "space tab\tline\nslash\\hash#cr\rctrl\x01del\x7f目录"
@@ -78,17 +86,23 @@ def main():
             bind(new, odd)
             odd_result = check(odd)
             assert odd_result["mount"]["point"] == str(odd)
-            assert odd_result["filesystem_path"] == str(new)
+            assert odd_result["filesystem_path"] == source_filesystem_path(new)
             scenarios.append("real escaped and unescaped control-character mountpoint")
             # A real remount changes per-mount flags; it must not change identity.
             before_file, after_file = tmp / "before.mountinfo", tmp / "after.mountinfo"
+            before_snapshot, after_snapshot = tmp / "before.json", tmp / "after.json"
             before_file.write_bytes(Path("/proc/self/mountinfo").read_bytes())
+            run("node", CLI, "capture", before_snapshot)
             run("mount", "-o", "remount,bind,ro", odd)
             after_file.write_bytes(Path("/proc/self/mountinfo").read_bytes())
+            run("node", CLI, "capture", after_snapshot)
             changes = json.loads(run("node", CLI, "diff", before_file, after_file, os.readlink("/proc/self/ns/mnt")))
             matching = [change for change in changes if change.get("after", {}).get("id") == odd_result["mount"]["id"]]
             assert len(matching) == 1 and matching[0]["kind"] == "Changed"
             assert "ro" in matching[0]["after"]["options"].split(",")
+            saved_changes = json.loads(run("node", CLI, "compare", before_snapshot, after_snapshot))
+            assert saved_changes["summary"]["changed"] == 1
+            assert saved_changes["changes"] == changes
             scenarios.append("real bind remount produces Changed without false Replaced")
         finally:
             for destination in reversed(mounted):

@@ -1,0 +1,11 @@
+{
+  "checked_at_utc": "2026-10-23T07:09:58.496771+00:00",
+  "platform": "Linux",
+  "version": "0.2.0",
+  "workflow": "import -> saved snapshot -> show/query -> compare",
+  "live_capture_workflow": "passed",
+  "namespace_mismatch": "rejected",
+  "existing_file": "preserved",
+  "unrelated_working_directory": "passed",
+  "result": "passed"
+}

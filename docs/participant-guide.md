@@ -15,3 +15,6 @@
 
 9. 内核文件名转义为何不能按“去掉所有控制字符”处理？path 字段只引用空格、Tab、LF、反斜杠，合法 CR、其他非分隔控制字符和 DEL 会原样出现；source/type 的 mangle 还会引用 #。必须按字段解码，Python 读取 mountinfo 时也不能做通用换行转换。
 10. 为什么全新解压验证有价值？开发目录自带 release-local 与构建缓存可能掩盖缺失目录。现在先从真实归档运行 README 检查，再建独立消费模块，才能验证给新用户的命令。
+
+11. 展示报告与可载入快照有何区别？live/show 输出供查看；capture/import 保存原始正文、schema 和 namespace_id。decode_snapshot 重建图并重新校验，不信任持久化数组。compare 使用文件中的标识，避免误用手填的共同 token。
+12. 成品需要什么？用户只需 Node 22+；开发构建才需要 MoonBit/Python。ZIP 附带 core 的许可和 NOTICE，因为编译后的标准库片段随 .cjs 分发。

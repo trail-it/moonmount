@@ -21,7 +21,9 @@ jobs:
           mkdir -p release-local
           python scripts/verify.py
           python scripts/verify_oracle.py
+          python scripts/verify_cli_workflow.py
           python scripts/verify_linux.py
           python scripts/verify_package.py
+          python scripts/build_cli.py
       - name: Verify real overmount and remount in a private mount namespace
         run: sudo unshare --mount --propagation private env "PATH=$PATH" MOONMOUNT_DISPOSABLE_NAMESPACE=1 python scripts/verify_mount_namespace.py

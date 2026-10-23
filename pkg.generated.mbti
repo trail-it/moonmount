@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn decode_snapshot(String) -> Snapshot raise MountError
+
 pub fn parse(String, namespace_id~ : String) -> Snapshot raise MountError
 
 // Errors
@@ -15,6 +17,7 @@ pub suberror MountError {
   Topology(reason~ : String)
   InvalidPath(String)
   NamespaceMismatch
+  InvalidSnapshot(reason~ : String)
 } derive(Eq, @debug.Debug)
 pub fn MountError::equal(Self, Self) -> Bool
 pub fn MountError::not_equal(Self, Self) -> Bool
@@ -78,6 +81,7 @@ pub struct Snapshot {
 pub fn Snapshot::ancestors(Self, Int) -> Array[Mount]
 pub fn Snapshot::children(Self, Int) -> Array[Mount]
 pub fn Snapshot::diff(Self, Self) -> Array[Change] raise MountError
+pub fn Snapshot::encode(Self) -> String
 pub fn Snapshot::get(Self, Int) -> Mount?
 pub fn Snapshot::mounts(Self) -> Array[Mount]
 pub fn Snapshot::namespace_id(Self) -> String

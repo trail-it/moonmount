@@ -39,7 +39,7 @@ def main():
         huge = tmp / "huge.mountinfo"
         with huge.open("wb") as f:
             f.truncate(8 * 1024 * 1024 + 1)
-        cases = [[], ["unknown"], ["inspect", str(bad), "s"], ["inspect", str(tmp / "missing"), "s"], ["inspect", str(invalid_utf8), "s"], ["inspect", str(huge), "s"], ["resolve", "fixtures/stacked.mountinfo", "s", "relative"]]
+        cases = [["unknown"], ["inspect", str(bad), "s"], ["inspect", str(tmp / "missing"), "s"], ["inspect", str(invalid_utf8), "s"], ["inspect", str(huge), "s"], ["resolve", "fixtures/stacked.mountinfo", "s", "relative"]]
         for args in cases:
             p = subprocess.run(["node", str(cli), *args], cwd=ROOT, capture_output=True)
             assert p.returncode == 1 and p.stderr and not p.stdout, args

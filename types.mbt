@@ -6,6 +6,7 @@ pub suberror MountError {
   Topology(reason~ : String)
   InvalidPath(String)
   NamespaceMismatch
+  InvalidSnapshot(reason~ : String)
 } derive(Debug, Eq)
 
 ///|
@@ -35,6 +36,7 @@ pub struct Snapshot {
   priv entries : Array[Mount]
   priv index : Map[Int32, Mount]
   priv child_index : Map[Int32, Array[Mount]]
+  priv source_text : String
 } derive(Debug)
 
 ///|

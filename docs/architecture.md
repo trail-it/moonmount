@@ -1,6 +1,6 @@
 # 架构与 API 契约
 
-根包独立拥有公开 Mount、Snapshot、Resolution、Change 与 MountError，内部拆分 types/parse/topology。无第三方运行模块或 C 绑定。cmd/main 的 JS 适配负责文件读取、严格 UTF-8 解码、namespace 标识及错误退出；所有协议、图和变化判断都在 MoonBit。
+根包独立拥有公开 Mount、Snapshot、Resolution、Change 与 MountError，内部拆分 types/parse/topology。无第三方运行模块或 C 绑定。cmd/main 的 JS 适配负责有界文件读取、严格 UTF-8 解码、namespace 标识、独占创建快照文件及错误退出；所有协议、图和变化判断都在 MoonBit。
 
 ## 解析与不变量
 
@@ -39,3 +39,13 @@ live 前后核对 boot ID + mount namespace 链接；仅表示采集时 namespac
 `scripts/verify_mount_namespace.py` 只在显式声明的临时 mount namespace 内运行：先把传播设为 private，在临时目录建立 bind/overmount，再与内核 O_PATH 打开目标路径后 `/proc/self/fdinfo` 的 mnt_id 对照。覆盖旧孩子仍留在 mountinfo 的场景、bind filesystem root、空格/Tab/LF/反斜杠/#/CR/控制字符/Unicode 路径，以及真正的 bind 只读 remount → Changed。退出前逆序卸载临时挂载；产品 CLI 本身仍只读。
 
 真实覆盖场景采用内核 fdinfo oracle：测试发现当前容器的 findmnt 版本会在同路径多记录时返回覆盖前的条目，而 O_PATH 打开的新 marker 与 fdinfo ID 对应实际可见挂载。普通记录字段仍使用 findmnt 独立解析对照。fdinfo 的 mnt_id 语义见 [Linux 手册](https://man7.org/linux/man-pages/man5/proc_pid_fdinfo.5.html)。
+
+## 0.2.0 可携带快照与成品
+
+Snapshot 私有保存原始 mountinfo 文本；`Snapshot::encode()` 在纯 MoonBit 中输出 `moonmount.snapshot` schema 1，`decode_snapshot()` 用标准 JSON 解析器校验格式和字段，再重新执行 mountinfo/图校验。namespace_id 随文件保留，compare 不允许用户用同一命令行 token 覆盖两个文件的身份。该 token 仍是采集标识而非认证，不能消除 inode/ID 复用边界。
+
+原始文本仍限 8 Mi，快照 JSON 允许最多 64 Mi（CLI 字节、库 UTF-16 单元），以容纳 JSON 转义。默认 JSON 解析器带自身嵌套上限。未知 format/schema、展示报告、缺少字段或损坏正文均拒绝；未知额外字段不参与当前图解释。输入文件不被修改。输出用 wx 独占创建，拒绝覆盖已有文件；POSIX 权限 0600，写入失败清理本次创建的未完成文件。
+
+`capture/import` 保存，`show/query/compare` 载入。compare 输出四类计数与逐项 changes，旧版 raw-text diff 的数组输出保持兼容。无参数/--help 输出帮助，--version 与模块版本有实际一致性测试。
+
+`scripts/build_cli.py` 把 release JS 构建结果保存为 CommonJS `.cjs`，连同 fixture、说明和必要许可证打成独立 Node ZIP；真实解压后从无关工作目录运行 import/show/query/compare 和错误路径。最终用户运行只需要 Node，不依赖 MoonBit、Python、npm 或源码目录。

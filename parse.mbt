@@ -249,5 +249,5 @@ pub fn parse(
       done[id] = true
     }
   }
-  { token: namespace_id, entries, index, child_index, }
+  { token: namespace_id, entries, index, child_index, source_text: text, }
 }

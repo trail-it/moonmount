@@ -1,3 +1,19 @@
+# 0.2.0 完整操作演示
+
+解压 `output/cli/moonmount-0.2.0-node.zip`，进入目录，先运行 `node moonmount.cjs --help`。
+
+0-30 秒：解释 Linux 容器里的路径归属，介绍成品只需要 Node。
+
+30-90 秒：`import fixtures/stacked.mountinfo synthetic before.json`，接着 `show before.json` 和 `query before.json /work/hidden/file`。结果应为 ID 4 和 /project/hidden/file；展示报告与可载入文件不同。
+
+90-140 秒：在 Linux 真机用 `capture actual-before.json`，再 `capture actual-after.json`，`compare actual-before.json actual-after.json`。namespace 自动记录和检查；无变化时计数为零。两个不同 namespace 的文件会拒绝比较。
+
+140-180 秒：从另一目录运行成品查询，展示不依赖源码目录；重复写入 before.json 会拒绝覆盖。指出离线分析可在 Windows 执行，capture 仅 Linux；符号链接和权限检查不属于词法归属解释。
+
+以下保留早期核心算法演示作为补充。
+
+---
+
 # 三分钟演示
 
 0-30 秒：容器 `/work` 可为文件系统子目录的 bind mount；磁盘表只显示容量，无法解释其来源和被覆盖的旧子树。

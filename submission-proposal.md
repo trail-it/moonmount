@@ -1,16 +1,16 @@
-# MoonMount 0.1.0
+# MoonMount 0.2.0
 
-2026-10-20 · 十月赛本地申报草稿 · GitHub ID / 项目仓库 / Mooncakes namespace：待指定。
+2026-10-23 · 十月赛本地申报草稿 · GitHub ID / 项目仓库 / Mooncakes namespace：待指定。
 
 一个为 MoonBit 生态提供 Linux 挂载拓扑、路径归属解释与快照变化分析能力的开源项目。面向容器诊断、部署检查和文件系统工具，解释 bind mount 的内部目录，以及叠加挂载为何让旧子挂载不可见。
 
 调研读取 3090 条 registry 元数据、相关公开 API/README、GitHub 活动与 issues。sysinfo 已有磁盘/挂载容量，chokidar 已有文件事件，moondisk 已有目录快照；本项目新增 parent 图、overmount 可见性、filesystem root、传播组和同 namespace 对象差分。检索范围未发现同等独立模块，不断言全网不存在。
 
-独立原创、MIT：纯 MoonBit 完成有界 mountinfo 解析、四种转义、图约束、可见路径、传播查询及 Added/Removed/Changed/Replaced；Node 仅负责文件和 namespace 标识读取。不移植 libmount，不把宿主绑定当作核心。
+独立原创、MIT：纯 MoonBit 完成有界 mountinfo 解析、四种转义、图约束、可见路径、传播查询及 Added/Removed/Changed/Replaced；Node 仅负责文件与 namespace I/O。不移植 libmount，不把宿主绑定当作核心。
 
-Windows moon 20261012 / moonc v0.10.15，Linux moon 20261016 / moonc v0.10.16；JS/Wasm-GC 各 24 项测试含文档示例，格式/check/build 与警告检查通过。独立 Python oracle：37 synthetic 挂载、19 路径。本轮 Linux 25 条记录 × 7 字段、6 路径与 findmnt 一致，另 4 项实际挂载场景通过 O_PATH/fdinfo 对照。真实 nsfs root 推动 Option 模型修复，本轮修复合法控制字符与 source/type 的 # 转义。实际包归档先跑全套 README 离线检查与 oracle，再从独立模块消费，结果见 docs/test-evidence/。
+Windows 与 Linux 真机均为 moon 20261012 / moonc v0.10.15；JS/Wasm-GC 各 28 项测试含文档示例，格式/check/build 与警告检查通过。独立 Python oracle：37 synthetic 挂载、19 路径。本轮 Linux 真机 63 条记录 × 7 字段、6 路径与 findmnt 一致，另 4 项实际挂载场景通过 O_PATH/fdinfo 对照。真实 nsfs root 推动 Option 模型修复，本轮修复合法控制字符与 source/type 的 # 转义。实际包归档先跑全套 README 离线检查与 oracle，再从独立模块消费，结果见 docs/test-evidence/。
 
-3 分钟演示：先解释容器路径问题，再运行 examples/replay 看到 /work/hidden/file 正确落到挂载 4；比较 Changed、查看传播组与错误行为，最后 Linux live/findmnt 对照。入口与完整讲解见 docs/demo.md。
+0.2.0 新增 schema 1 快照保存/载入、自动 namespace 比较、拒绝覆盖已有文件，以及只需 Node 的独立 ZIP。3 分钟演示先运行成品 import/query，再在 Linux 真机 capture 两次并 compare；/work/hidden/file 正确落到挂载 4。入口与完整讲解见 docs/demo.md。
 
 限制：词法归属，不解析 symlink/权限；非 UTF-8 文件名、native、事件订阅不在支持范围。opaque root 无目录映射；mount ID 复用不能由相同快照排除。预算和错误契约见 docs/architecture.md。
 

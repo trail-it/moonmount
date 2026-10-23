@@ -21,7 +21,9 @@ def main():
     (ROOT / "release-local").mkdir(exist_ok=True)
     (ROOT / "docs/test-evidence").mkdir(parents=True, exist_ok=True)
     packaging = run(["moon", "package"], ROOT)
-    archive = ROOT / "_build/publish/local-moonmount-0.1.0.zip"
+    import re
+    version = re.search(r'version\s*=\s*"([^"]+)"', (ROOT / "moon.mod").read_text()).group(1)
+    archive = ROOT / f"_build/publish/local-moonmount-{version}.zip"
     with zipfile.ZipFile(archive) as z:
         entries = z.namelist()
         forbidden = {".git", ".github", "research", "release-local", "_build", "target", "demo-output", "tmp", "output", "__pycache__", ".local-ledger.md"}
@@ -40,16 +42,20 @@ def main():
             # no ignored source-tree directories or build cache may be required.
             fresh = json.loads(run([sys.executable, "scripts/verify.py"], library))
             oracle = json.loads(run([sys.executable, "scripts/verify_oracle.py"], library))
+            workflow = json.loads(run([sys.executable, "scripts/verify_cli_workflow.py"], library))
             assert fresh["result"] == oracle["result"] == "passed"
+            assert workflow["result"] == "passed"
             consumer = temp / "consumer"
             consumer.mkdir()
             (temp / "moon.work").write_text('members = ["library", "consumer"]\n', encoding="utf-8")
-            (consumer / "moon.mod").write_text('name = "local/mount_consumer"\nversion = "0.0.1"\nimport { "local/moonmount@0.1.0" }\n', encoding="utf-8")
+            (consumer / "moon.mod").write_text('name = "local/mount_consumer"\nversion = "0.0.1"\nimport { "local/moonmount@' + version + '" }\n', encoding="utf-8")
             (consumer / "moon.pkg").write_text('import { "local/moonmount" @mount } for "test"\n', encoding="utf-8")
             source = '''///|
 test "archive public API, hidden subtree and opaque root" {
   let text = "1 99 8:1 / / rw - ext4 x rw\\n2 1 0:2 / /work rw - tmpfs x rw\\n3 2 0:3 / /work/hidden rw - tmpfs x rw\\n4 2 8:4 /sub /work ro - ext4 x rw\\n5 1 0:5 mnt:[42] /ns rw - nsfs nsfs rw\\n"
   let s = @mount.parse(text, namespace_id="synthetic-consumer")
+  let restored = @mount.decode_snapshot(s.encode())
+  assert_eq(restored.mounts(), s.mounts())
   assert_eq(s.resolve("/work/hidden/a").mount.id, 4)
   assert_eq(s.resolve("/work/hidden/a").filesystem_path, Some("/sub/hidden/a"))
   assert_eq(s.resolve("/ns").filesystem_path, None)
@@ -63,7 +69,7 @@ test "archive public API, hidden subtree and opaque root" {
             run(["moon", "build", "--target", "js", "--deny-warn"], library)
             cli = json.loads(run(["moon", "run", "cmd/main", "--target", "js", "--", "resolve", str(library / "fixtures/stacked.mountinfo"), "synthetic", "/work/hidden/file"], library))
             assert cli["resolution"]["mount"]["id"] == 4
-    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "archive": archive.name, "file_count": len(entries), "archive_bytes": archive.stat().st_size, "fresh_archive_readme_checks": fresh["result"], "fresh_archive_oracle": oracle["result"], "consumers": consumers, "extracted_cli": "passed", "distribution_exclusions": "passed", "packaging_output": packaging.replace(str(ROOT), "<project>"), "result": "passed"}
+    result = {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "archive": archive.name, "file_count": len(entries), "archive_bytes": archive.stat().st_size, "fresh_archive_readme_checks": fresh["result"], "fresh_archive_oracle": oracle["result"], "fresh_archive_saved_snapshot_workflow": workflow["result"], "consumers": consumers, "extracted_cli": "passed", "distribution_exclusions": "passed", "packaging_output": packaging.replace(str(ROOT), "<project>"), "result": "passed"}
     (ROOT / "docs/test-evidence/package-consumption.json").write_text(json.dumps(result, indent=2) + "\n")
     (ROOT / "release-local/package-files.txt").write_text("\n".join(entries) + "\n")
     print(json.dumps(result, indent=2))

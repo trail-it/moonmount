@@ -34,3 +34,7 @@ MVP：完整 mountinfo 字段与四种转义；未知 optional 字段保留；�
 ## 2026-10-20 验收完善
 
 复核官方当前六项验收标准；修复合法 CR/控制字符和 source/type 的 # 引用，公共 API 不变。验证命令可从新解压目录运行，时间戳改为实际执行时间；新增隔离 mount namespace 的真实 overmount/remount 对照。公开发布和连续公开记录尚未执行，不以本地 Git 历史代替。
+
+## 2026-10-23 完整使用交付
+
+0.2.0 新增可携带快照的 encode/decode、capture/import/show/query/compare、自动 namespace 检查、已有文件保护，以及无需 MoonBit/Python 的独立 Node 成品。用户 Linux 真机与 Windows 通过公开流程；额外真实 remount 比较只在隔离命名空间中验证。公开状态仍待指定。

@@ -1,15 +1,17 @@
 {
-  "checked_at_utc": "2026-10-19T16:19:17.878761+00:00",
+  "checked_at_utc": "2026-10-23T07:10:00.045645+00:00",
   "platform": "Linux",
   "backend": "js / Node",
-  "toolchain": "moon 0.1.20261016 (1af328f 2026-10-16)\nmoonc v0.10.16+b1a0e846e (2026-10-16)\nmoonrun 0.1.20261016 (1af328f 2026-10-16)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
-  "node": "v22.23.3",
-  "findmnt": "findmnt from util-linux 2.38.1",
-  "records_compared": 25,
+  "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\nmoonc v0.10.15+943464bfa (2026-10-12)\nmoonrun 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+  "node": "v22.22.1",
+  "findmnt": "findmnt\uff0c\u6765\u81ea util-linux 2.41.3",
+  "records_compared": 63,
   "fields_per_record": 7,
   "real_paths_compared": 6,
   "read_failure": "passed",
   "live_namespace_identity": "passed",
+  "capture_show_query_compare": "passed",
+  "capture_existing_file": "preserved",
   "host_mount_changes": "none",
   "result": "passed"
 }

@@ -1,16 +1,17 @@
 {
-  "checked_at_utc": "2026-10-19T16:20:48.623369+00:00",
-  "archive": "local-moonmount-0.1.0.zip",
-  "file_count": 40,
-  "archive_bytes": 48704,
+  "checked_at_utc": "2026-10-23T07:17:25.135908+00:00",
+  "archive": "local-moonmount-0.2.0.zip",
+  "file_count": 52,
+  "archive_bytes": 68660,
   "fresh_archive_readme_checks": "passed",
   "fresh_archive_oracle": "passed",
+  "fresh_archive_saved_snapshot_workflow": "passed",
   "consumers": {
     "wasm-gc": "Total tests: 1, passed: 1, failed: 0.",
     "js": "Total tests: 1, passed: 1, failed: 0."
   },
   "extracted_cli": "passed",
   "distribution_exclusions": "passed",
-  "packaging_output": "Warning: 'repository' field is not set or empty in module manifest\nRunning moon check ...\nFinished. moon: ran 2 tasks, now up to date\nCheck passed\nPackage to <project>\\_build\\publish\\local-moonmount-0.1.0.zip",
+  "packaging_output": "Warning: 'repository' field is not set or empty in module manifest\nRunning moon check ...\nFinished. moon: ran 4 tasks, now up to date\nCheck passed\nPackage to <project>\\_build\\publish\\local-moonmount-0.2.0.zip",
   "result": "passed"
 }
