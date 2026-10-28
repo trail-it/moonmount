@@ -1,3 +1,22 @@
+# 公开发布 0.2.0
+
+2026-10-28，用户授权以 `trail-it` 身份公开发布。GitHub 上传账号、后续 Git author/committer 和 Mooncakes 登录账号均已核对为 `trail-it`；仓库为 [trail-it/moonmount](https://github.com/trail-it/moonmount)，默认分支为 `main`，公开可见。
+
+- Mooncakes：[`trail-it/moonmount@0.2.0`](https://mooncakes.io/docs/trail-it/moonmount@0.2.0)，服务返回 200；独立工程从公开注册表安装确切版本，JS/Wasm-GC 各 1 项公共 API 测试通过，见 [registry-consumption.json](test-evidence/registry-consumption.json)。
+- 实际发布归档：53 个文件，MIT，repository 元数据正确；从公开下载地址重新下载并核对 registry 校验和，私有目录未分发，见 [published-archive.json](test-evidence/published-archive.json)。其 SHA-256 为 `e26bcb1651ab659cd2cbec987230b4d295af111c7ba6dbef0e0d7f37886845fc`。
+- 本轮 Windows 检查：格式、检查、构建通过，JS/Wasm-GC 各 28 项测试通过；独立 oracle、快照工作流、解压归档消费及独立 Node 成品通过。Linux 真机证据保留 10 月 23 日实际结果；本轮真机连接超时，新的 Linux 验证由公开 CI 执行，不将旧结果改为本轮实测。
+- 公开 CI：[verify 工作流](https://github.com/trail-it/moonmount/actions/workflows/ci.yml)，覆盖两个后端、独立 oracle、Linux/findmnt、归档和 registry 消费、独立 Node 成品、隔离命名空间内真实挂载场景。旧版工具链下载返回 403 后，改用官方可下载版本并在运行日志记录实际版本；最终结论以对应 SHA 的运行结果为准。
+- 发布检查提交 `3a8f35c` 的 [完整 CI 已通过](https://github.com/trail-it/moonmount/actions/runs/40649798090)，包括实际 overmount/remount 和 registry 消费；摘要见 [public-ci.json](test-evidence/public-ci.json)。后续材料提交由相同工作流再次验证。
+- 使用入口：[Node 成品与一页申报书 Release](https://github.com/trail-it/moonmount/releases/tag/v0.2.0)；源码使用 `moon add trail-it/moonmount@0.2.0`。
+
+本地研发始于 10 月 18 日，首次公开于 10 月 28 日。原有 8 个中性本地身份提交保留原始作者、时间和 SHA，新发布工作由 `trail-it` 提交；不补造连续公开开发记录。有效阶段提交已不少于 10 个，未用空提交或无意义拆分凑数。
+
+运行代码冻结于 `803ad2636d4b3bda51fa7aa2b524fa603eb184ff`；后续提交补充注册表消费检查、CI 修复和正式发布材料。注册表 0.2.0 是不可变归档，后续仓库中的发布证据与申报书更新不改写已发布包。未代填赛事报名、个人资料或声称通过官方审核。
+
+以下保留历次本地交付记录，日期与“未发布”状态均描述当时情况。
+
+---
+
 # 本地交付 0.2.0：可直接使用的快照工具
 
 2026-10-23。仍仅本地保存，模块 `local/moonmount@0.2.0`，未上传、发包或报名。

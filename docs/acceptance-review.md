@@ -1,5 +1,23 @@
 # 验收准备复核
 
+## 2026-10-28 公开发布复核
+
+目标身份 `trail-it` 已确认；[GitHub 仓库](https://github.com/trail-it/moonmount) 公开、默认分支 `main`，真实阶段历史不少于 10 个提交。GitHub 上传和 Mooncakes 均使用该账号，后续提交采用其官方 noreply 身份；保留先前中性本地研发历史。
+
+[`trail-it/moonmount@0.2.0`](https://mooncakes.io/docs/trail-it/moonmount@0.2.0) 已发布，重新下载的 53 文件归档与 registry 校验和一致；独立消费工程不使用本地 workspace 替换，两个后端分别完成 1 项公开 API 测试，覆盖快照往返、遮蔽子树、opaque root、差分及快照不可变性。证据见 test-evidence/registry-consumption.json 和 published-archive.json。
+
+本轮 Windows 各后端 28 项测试、独立 oracle、源码归档与独立 Node 成品验证通过。新的 Linux 检查通过 [公开 CI 工作流](https://github.com/trail-it/moonmount/actions/workflows/ci.yml) 执行，最终通过状态以对应提交 SHA 为准；用户 Linux 真机 10 月 23 日的结果保留原日期。本轮真机 SSH 超时，未在笔记本开启 Docker。
+
+发布检查提交 `3a8f35c` 的 [完整 CI 已成功](https://github.com/trail-it/moonmount/actions/runs/40649798090)：两后端、Linux、归档与注册表消费、独立 Node 成品、真实隔离挂载场景全部完成，见 test-evidence/public-ci.json；正式材料提交继续由相同工作流核验。
+
+[Markdown 申报书](https://github.com/trail-it/moonmount/blob/main/submission-proposal.md) 与 [一页 PDF](https://github.com/trail-it/moonmount/blob/main/output/pdf/MoonMount-proposal-0.2.0.pdf) 已按用户给出的 8 项内容更新，包含 3 个完整场景、原创与依赖许可、正式仓库及包链接。规则于本轮通过官方 App.tsx 再次核对，十月报名与验收截止为 10 月 31 日，最多提交 3 次；本次不代填报名或取得官方审核结论。
+
+首次公开发生在 10 月 28 日，本地 10 月 18 日起的研发历史不冒充此前已持续公开。公开持续开发这一赛事要求由评审结合实际历史判断。
+
+---
+
+## 2026-10-23 本地复核记录
+
 2026-10-23 复核（首次交付 2026-10-18），十月赛；MoonMount 0.2.0；main；local/moonmount。公开身份、仓库与 namespace 待指定。
 
 总体：本地源码与材料就绪；公开持续开发/发包/远端 CI 待发布；未报名、入群或取得官方审核结果。本复核不是赛事方结论。

@@ -1,19 +1,28 @@
-# MoonMount 0.2.0
+# MoonMount 项目申报书
 
-2026-10-23 · 十月赛本地申报草稿 · GitHub ID / 项目仓库 / Mooncakes namespace：待指定。
+**1、项目名称**
+MoonMount——基于 MoonBit 的 Linux 挂载拓扑与快照分析工具。
 
-一个为 MoonBit 生态提供 Linux 挂载拓扑、路径归属解释与快照变化分析能力的开源项目。面向容器诊断、部署检查和文件系统工具，解释 bind mount 的内部目录，以及叠加挂载为何让旧子挂载不可见。
+**2、项目简介**
+MoonMount 解析 Linux 挂载信息，建立挂载父子关系，解释路径实际可见的挂载、bind mount 对应的文件系统内部目录及挂载前后变化。项目提供可复用的 MoonBit 库和独立命令行工具，支持 Linux 采集、Windows 离线分析，帮助开发者定位挂载覆盖与部署配置问题。
 
-调研读取 3090 条 registry 元数据、相关公开 API/README、GitHub 活动与 issues。sysinfo 已有磁盘/挂载容量，chokidar 已有文件事件，moondisk 已有目录快照；本项目新增 parent 图、overmount 可见性、filesystem root、传播组和同 namespace 对象差分。检索范围未发现同等独立模块，不断言全网不存在。
+**3、项目方向与通用性**
+方向为开发者工具及 Linux／容器基础设施。围绕标准 `/proc/self/mountinfo` 接口实现，可用于服务器、容器和本地 Linux 环境；核心分析逻辑由 MoonBit 实现，支持 JS、Wasm-GC 后端，可嵌入运维诊断、部署检查和文件系统管理工具。
 
-独立原创、MIT：纯 MoonBit 完成有界 mountinfo 解析、四种转义、图约束、可见路径、传播查询及 Added/Removed/Changed/Replaced；Node 仅负责文件与 namespace I/O。不移植 libmount，不把宿主绑定当作核心。
+**4、预期使用场景**
 
-Windows 与 Linux 真机均为 moon 20261012 / moonc v0.10.15；JS/Wasm-GC 各 28 项测试含文档示例，格式/check/build 与警告检查通过。独立 Python oracle：37 synthetic 挂载、19 路径。本轮 Linux 真机 63 条记录 × 7 字段、6 路径与 findmnt 一致，另 4 项实际挂载场景通过 O_PATH/fdinfo 对照。真实 nsfs root 推动 Option 模型修复，本轮修复合法控制字符与 source/type 的 # 转义。实际包归档先跑全套 README 离线检查与 oracle，再从独立模块消费，结果见 docs/test-evidence/。
+- **容器目录排障：** 运维人员发现应用读取的配置或数据目录异常，在对应挂载命名空间采集快照，查询应用路径的可见挂载及内部目录映射，定位 bind mount 配置错误或叠加挂载遮蔽问题。
+- **部署变更核验：** 部署人员在同一挂载命名空间的发布前后保存快照并比较，查看新增、移除、属性变化及挂载替换，核验数据卷和只读挂载等变更是否符合预期。
+- **跨平台离线诊断：** Linux 使用者保存故障现场快照，分析人员在 Windows 上载入文件、查询路径并比较历史快照，形成可复查的挂载关系与变化记录，无需持续连接原机器。
 
-0.2.0 新增 schema 1 快照保存/载入、自动 namespace 比较、拒绝覆盖已有文件，以及只需 Node 的独立 ZIP。3 分钟演示先运行成品 import/query，再在 Linux 真机 capture 两次并 compare；/work/hidden/file 正确落到挂载 4。入口与完整讲解见 docs/demo.md。
+**5、拟实现的核心功能（当前已完成）**
+① mountinfo 解析、转义处理与拓扑校验；② 考虑叠加遮蔽的路径归属及 bind mount 内部目录解析；③ 挂载传播关系查询与四类变化比较；④ 带格式版本及命名空间标识的快照保存、载入；⑤ 采集、导入、查看、查询、比较命令及仅依赖 Node.js 的运行包。已完成 Windows 与 Linux 真机验证，JS、Wasm-GC 各通过 28 项测试，并验证 4 类真实挂载场景。路径查询按词法解析，不解析符号链接或检查访问权限。
 
-限制：词法归属，不解析 symlink/权限；非 UTF-8 文件名、native、事件订阅不在支持范围。opaque root 无目录映射；mount ID 复用不能由相同快照排除。预算和错误契约见 docs/architecture.md。
+**6、项目性质**
+独立原创项目，采用 MIT 许可证；核心算法与快照格式由本项目实现，AI 辅助开发。项目不属于既有工具的语言移植。
 
-AI 辅助调研、实现与文档；参赛者须理解核心不变量并承担代码责任，见 docs/participant-guide.md。后续按失败样例回归、维护公开 API 和兼容性。
+**7、参考项目、来源与许可证**
+非移植项目，无被移植的开源项目及其许可证；格式与语义参考 [Linux mountinfo 接口文档](https://man7.org/linux/man-pages/man5/proc_pid_mountinfo.5.html)。随运行包分发的 MoonBit 标准库依赖保留 Apache-2.0 许可证及相关声明。
 
-本地真实阶段历史已保存。公开持续开发、正式仓库/发包、远端 CI、registry 安装、报名与官方审核待后续指定目标和办理；本草稿不声称已满足公开流程或通过审核。规则于 2026-10-20 通过官方 Hackathon2026/src/App.tsx 核对。
+**8、GitHub 仓库与提交记录**
+仓库：[trail-it/moonmount](https://github.com/trail-it/moonmount)，保留不少于 10 个有效阶段提交，涵盖调研、核心实现、缺陷修复、实机验证及正式发布；未采用空提交或无意义拆分。GitHub 与 Mooncakes 发布身份均为 `trail-it`，发布包为 [trail-it/moonmount@0.2.0](https://mooncakes.io/docs/trail-it/moonmount@0.2.0)。本地开发始于 10 月 18 日，首次公开于 10 月 28 日。

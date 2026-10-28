@@ -1,0 +1,20 @@
+{
+  "checked_at_utc": "2026-10-28T07:26:29.732739+00:00",
+  "repository": "trail-it/moonmount",
+  "commit": "3a8f35cef4e65137472abeb27eb925197259797a",
+  "url": "https://github.com/trail-it/moonmount/actions/runs/40649798090",
+  "conclusion": "success",
+  "toolchain": [
+    "moon 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moon",
+    "moonc v0.10.17+d971670cd (2026-10-23) ~/.moon/bin/moonc",
+    "moonrun 0.1.20261023 (3778465 2026-10-23) ~/.moon/bin/moonrun"
+  ],
+  "coverage": [
+    "JS and Wasm-GC tests, checks and builds",
+    "independent path oracle",
+    "Linux findmnt and snapshot workflow",
+    "extracted archive and registry consumers",
+    "standalone Node CLI",
+    "real overmount, bind root, special-character paths and read-only remount in a private mount namespace"
+  ]
+}
