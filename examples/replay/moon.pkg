@@ -1,5 +1,5 @@
 import {
-  "local/moonmount" @mount,
+  "trail-it/moonmount" @mount,
 }
 
 pkgtype(kind: "executable")

@@ -1,7 +1,7 @@
 supported_targets = "js"
 
 import {
-  "local/moonmount" @mount,
+  "trail-it/moonmount" @mount,
 }
 
 pkgtype(kind: "executable")

@@ -22,8 +22,10 @@ def main():
     (ROOT / "docs/test-evidence").mkdir(parents=True, exist_ok=True)
     packaging = run(["moon", "package"], ROOT)
     import re
-    version = re.search(r'version\s*=\s*"([^"]+)"', (ROOT / "moon.mod").read_text()).group(1)
-    archive = ROOT / f"_build/publish/local-moonmount-{version}.zip"
+    manifest = (ROOT / "moon.mod").read_text(encoding="utf-8")
+    version = re.search(r'version\s*=\s*"([^"]+)"', manifest).group(1)
+    module = re.search(r'name\s*=\s*"([^"]+)"', manifest).group(1)
+    archive = ROOT / f"_build/publish/{module.replace('/', '-')}-{version}.zip"
     with zipfile.ZipFile(archive) as z:
         entries = z.namelist()
         forbidden = {".git", ".github", "research", "release-local", "_build", "target", "demo-output", "tmp", "output", "__pycache__", ".local-ledger.md"}
@@ -48,8 +50,8 @@ def main():
             consumer = temp / "consumer"
             consumer.mkdir()
             (temp / "moon.work").write_text('members = ["library", "consumer"]\n', encoding="utf-8")
-            (consumer / "moon.mod").write_text('name = "local/mount_consumer"\nversion = "0.0.1"\nimport { "local/moonmount@' + version + '" }\n', encoding="utf-8")
-            (consumer / "moon.pkg").write_text('import { "local/moonmount" @mount } for "test"\n', encoding="utf-8")
+            (consumer / "moon.mod").write_text('name = "local/mount_consumer"\nversion = "0.0.1"\nimport { "' + module + '@' + version + '" }\n', encoding="utf-8")
+            (consumer / "moon.pkg").write_text('import { "' + module + '" @mount } for "test"\n', encoding="utf-8")
             source = '''///|
 test "archive public API, hidden subtree and opaque root" {
   let text = "1 99 8:1 / / rw - ext4 x rw\\n2 1 0:2 / /work rw - tmpfs x rw\\n3 2 0:3 / /work/hidden rw - tmpfs x rw\\n4 2 8:4 /sub /work ro - ext4 x rw\\n5 1 0:5 mnt:[42] /ns rw - nsfs nsfs rw\\n"

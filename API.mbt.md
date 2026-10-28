@@ -1,6 +1,6 @@
 # MoonMount API 示例
 
-导入根包 `local/moonmount`，本地临时 namespace，尚未注册表发布。
+安装 `moon add trail-it/moonmount@0.2.0`，在调用方 `moon.pkg` 导入 `"trail-it/moonmount" @mount`。下方库内文档测试使用 `@moonmount` 别名。
 
 ```mbt check
 ///|

@@ -1,8 +1,8 @@
 {
-  "checked_at_utc": "2026-10-23T07:17:25.135908+00:00",
-  "archive": "local-moonmount-0.2.0.zip",
+  "checked_at_utc": "2026-10-28T06:11:16.919078+00:00",
+  "archive": "trail-it-moonmount-0.2.0.zip",
   "file_count": 52,
-  "archive_bytes": 68660,
+  "archive_bytes": 68773,
   "fresh_archive_readme_checks": "passed",
   "fresh_archive_oracle": "passed",
   "fresh_archive_saved_snapshot_workflow": "passed",
@@ -12,6 +12,6 @@
   },
   "extracted_cli": "passed",
   "distribution_exclusions": "passed",
-  "packaging_output": "Warning: 'repository' field is not set or empty in module manifest\nRunning moon check ...\nFinished. moon: ran 4 tasks, now up to date\nCheck passed\nPackage to <project>\\_build\\publish\\local-moonmount-0.2.0.zip",
+  "packaging_output": "Running moon check ...\nFinished. moon: ran 4 tasks, now up to date\nCheck passed\nPackage to <project>\\_build\\publish\\trail-it-moonmount-0.2.0.zip",
   "result": "passed"
 }

@@ -2,11 +2,11 @@
 
 纯 MoonBit 的 Linux 挂载拓扑、可见路径解析和 namespace 快照差分库。用于容器诊断、部署检查和文件系统工具：解释一个路径属于哪个挂载、对应文件系统内部的哪个目录，以及挂载叠加后哪些旧子树已被遮住。
 
-本地版本 **0.2.0**，MIT，临时模块名 `local/moonmount`。新增可直接运行的 Node 成品、可携带快照与自动 namespace 检查。公开仓库、发布 namespace 和参赛者身份待定。
+版本 **0.2.0**，MIT，模块名 `trail-it/moonmount`。[GitHub 仓库](https://github.com/trail-it/moonmount) · [Mooncakes API](https://mooncakes.io/docs/trail-it/moonmount@0.2.0) · [自动验证](https://github.com/trail-it/moonmount/actions/workflows/ci.yml)。提供可直接运行的 Node 成品、可携带快照与自动 namespace 检查。
 
 ## 直接使用：无需安装 MoonBit
 
-本地成品为 `output/cli/moonmount-0.2.0-node.zip`。解压到任意目录，只需 **Node.js 22 或更新版本**，运行时无需 MoonBit、Python 或 npm 安装。进入解压目录，在 Windows 或 Linux 上执行：
+从 [0.2.0 Release](https://github.com/trail-it/moonmount/releases/tag/v0.2.0) 下载 `moonmount-0.2.0-node.zip`（从源码构建时位于 `output/cli/`）。解压到任意目录，只需 **Node.js 22 或更新版本**，运行时无需 MoonBit、Python 或 npm 安装。进入解压目录，在 Windows 或 Linux 上执行：
 
 ```sh
 node moonmount.cjs --help
@@ -65,7 +65,13 @@ moon run cmd/main --target js -- live /proc/self/mountinfo
 
 ## API
 
-在调用方 moon.pkg 导入 `"local/moonmount" @mount`；当前通过本地 moon.work 使用，正式 registry 安装留待发布；可直接运行 `python scripts/verify_package.py`，它会自动创建独立 moon.work 消费工程。
+在独立 MoonBit 项目中安装确切版本：
+
+```sh
+moon add trail-it/moonmount@0.2.0
+```
+
+在调用方 `moon.pkg` 导入 `"trail-it/moonmount" @mount`。开发者可运行 `python scripts/verify_package.py` 验证源码归档的独立消费。
 
 ```moonbit nocheck
 let snapshot = @mount.parse(text, namespace_id="same-namespace-lifetime")
@@ -112,7 +118,7 @@ unshare --user --map-root-user --mount --propagation private env MOONMOUNT_DISPO
 
 mount ID 可能复用；相同记录不能证明两次观察之间没有卸载重建。选项按原有文本保存，顺序改变也可能报告 Changed。快照采集不是与其他系统状态同步的原子事务。传播组关系反映记录，不模拟内核传播操作。
 
-调研、方案、[架构](docs/architecture.md)、[参赛者导读](docs/participant-guide.md)、[三分钟演示](docs/demo.md)、[验收复核](docs/acceptance-review.md) 和 [申报草稿](submission-proposal.md) 均在本地。未执行公开发布、注册表安装、报名或官方审核。
+调研、方案、[架构](https://github.com/trail-it/moonmount/blob/main/docs/architecture.md)、[参赛者导读](https://github.com/trail-it/moonmount/blob/main/docs/participant-guide.md)、[三分钟演示](https://github.com/trail-it/moonmount/blob/main/docs/demo.md)、[验收复核](https://github.com/trail-it/moonmount/blob/main/docs/acceptance-review.md) 和 [申报书](https://github.com/trail-it/moonmount/blob/main/submission-proposal.md) 随仓库提供。实际发布与验证状态见 [交付记录](https://github.com/trail-it/moonmount/blob/main/docs/release.md)。报名与官方审核由参赛者按赛事流程办理。
 
 源码构建成品：`python scripts/build_cli.py`。生成的 `.cjs`/Node ZIP 不进入 Mooncakes 源码包；源码归档使用同一命令重新生成。
 
