@@ -100,6 +100,7 @@ FILE 为 UTF-8 mountinfo 文本。NAMESPACE 是调用方记录的同一 namespac
 python scripts/verify.py
 python scripts/verify_oracle.py
 python scripts/verify_package.py
+python scripts/verify_registry.py
 python scripts/verify_cli_workflow.py
 python scripts/build_cli.py
 # Linux 上另外执行

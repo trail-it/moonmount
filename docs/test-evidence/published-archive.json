@@ -1,0 +1,11 @@
+{
+  "module": "trail-it/moonmount",
+  "version": "0.2.0",
+  "license": "MIT",
+  "repository": "https://github.com/trail-it/moonmount",
+  "archive_file_count": 53,
+  "sha256": "e26bcb1651ab659cd2cbec987230b4d295af111c7ba6dbef0e0d7f37886845fc",
+  "registry_checksum_matches": true,
+  "private_directories_excluded": true,
+  "result": "passed"
+}

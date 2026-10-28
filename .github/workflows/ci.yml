@@ -14,8 +14,10 @@ jobs:
       - name: Install compatible MoonBit
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o /tmp/install-moon.sh
-          bash /tmp/install-moon.sh 0.1.20261012
+          bash /tmp/install-moon.sh
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Record actual toolchain
+        run: moon version --all
       - name: Verify offline, independent oracle, Linux and archive consumer
         run: |
           mkdir -p release-local
@@ -25,5 +27,6 @@ jobs:
           python scripts/verify_linux.py
           python scripts/verify_package.py
           python scripts/build_cli.py
+          python scripts/verify_registry.py
       - name: Verify real overmount and remount in a private mount namespace
         run: sudo unshare --mount --propagation private env "PATH=$PATH" MOONMOUNT_DISPOSABLE_NAMESPACE=1 python scripts/verify_mount_namespace.py
